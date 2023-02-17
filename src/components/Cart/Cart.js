@@ -9,6 +9,8 @@ import Checkout from "./Checkout";
 const Cart = (props) => {
 	const cartCtx = useContext(CartContext);
 	const [isCheckout, setIsCheckout] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [didSubmit, setDidSubmit] = useState(false);
 	const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
 	const hasItems = cartCtx.items.length > 0;
 
@@ -22,14 +24,25 @@ const Cart = (props) => {
 		cartCtx.addItem(item);
 	};
 
-	const submitOrderHandler = (userData) => {
-		fetch(process.env.REACT_APP_FIREBASE_URL, {
-			method: "POST",
-			body: JSON.stringify({
-				user: userData,
-				orderedItems: cartCtx.items,
-			}),
-		});
+	const submitOrderHandler = async (userData) => {
+		setIsSubmitting(true);
+
+		const response = await fetch(
+			process.env.REACT_APP_FIREBASE_URL + "orders.json",
+			{
+				method: "POST",
+				body: JSON.stringify({
+					user: userData,
+					orderedItems: cartCtx.items,
+				}),
+			}
+		);
+		if (!response.ok) {
+			throw new Error("Something went wrong!");
+		}
+		setIsSubmitting(false);
+		setDidSubmit(true);
+		cartCtx.clearCart();
 	};
 	const cartItems = (
 		<ul className={classes["cart-items"]}>
@@ -45,9 +58,8 @@ const Cart = (props) => {
 			))}
 		</ul>
 	);
-
-	return (
-		<Modal onClose={props.onClose}>
+	const cartModalContent = (
+		<>
 			{cartItems}
 			<div className={classes.total}>
 				<span>Total Amount</span>
@@ -68,6 +80,15 @@ const Cart = (props) => {
 					)}
 				</div>
 			)}
+		</>
+	);
+	const isSubmittingModalContent = <p>Sending order data...</p>;
+	const didSubmitModalContent = <p>Successfully send the order!</p>;
+	return (
+		<Modal onClose={props.onClose}>
+			{!isSubmitting && !didSubmit && cartModalContent}
+			{isSubmitting && isSubmittingModalContent}
+			{!isSubmitting && didSubmit && didSubmitModalContent}
 		</Modal>
 	);
 };
