@@ -22,6 +22,14 @@
 	max-width: 100%;
 }
 
+.control input {
+	font: inherit;
+	border: 1px solid red;
+	border-radius: 4px;
+	width: 20rem;
+	max-width: 100%;
+}
+
 .actions {
 	display: flex;
 	justify-content: flex-end;

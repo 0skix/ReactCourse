@@ -9,15 +9,22 @@ const Checkout = (props) => {
 		city: "",
 	});
 	const [isEmpty, setIsEmpty] = useState({
-		name: false,
-		street: false,
-		postalCode: false,
-		city: false,
+		name: true,
+		street: true,
+		postalCode: true,
+		city: true,
 	});
 	const handleInputChange = (event) => {
 		setForm({ ...form, [event.target.name]: event.target.value });
 		if (event.target.value.trim() !== "") {
 			setIsEmpty({ ...isEmpty, [event.target.name]: true });
+		} else {
+			setIsEmpty({ ...isEmpty, [event.target.name]: false });
+		}
+	};
+	const handleBlur = (event) => {
+		if (event.target.value.trim() === "") {
+			setIsEmpty({ ...isEmpty, [event.target.name]: false });
 		}
 	};
 	const confirmHandler = (event) => {
@@ -26,9 +33,21 @@ const Checkout = (props) => {
 		if (!allNotEmpty) {
 			alert("Please enter values");
 		} else {
+			props.onConfirm({
+				name: form.name,
+				street: form.street,
+				postalCode: form.postalCode,
+				city: form.city,
+			});
+
+			// this is the function that is passed from Cart.js
 			alert("Order Placed");
 		}
 	};
+	const nameInputClasses = isEmpty.name ? "" : "Please enter value";
+	const streetInputClasses = isEmpty.street ? "" : "Please enter value";
+	const postalcodeInputClasses = isEmpty.postalCode ? "" : "Please enter value";
+	const cityInputClasses = isEmpty.city ? "" : "Please enter value";
 	return (
 		<form className={classes.form} onSubmit={confirmHandler}>
 			<div className={classes.control}>
@@ -39,7 +58,9 @@ const Checkout = (props) => {
 					name="name"
 					value={form.name}
 					onChange={handleInputChange}
+					onBlur={handleBlur}
 				/>
+				{nameInputClasses}
 			</div>
 			<div className={classes.control}>
 				<label htmlFor="street">Street</label>
@@ -49,7 +70,9 @@ const Checkout = (props) => {
 					name="street"
 					value={form.street}
 					onChange={handleInputChange}
+					onBlur={handleBlur}
 				/>
+				{streetInputClasses}
 			</div>
 			<div className={classes.control}>
 				<label htmlFor="postal">Postal Code</label>
@@ -59,7 +82,9 @@ const Checkout = (props) => {
 					name="postalCode"
 					value={form.postalCode}
 					onChange={handleInputChange}
+					onBlur={handleBlur}
 				/>
+				{postalcodeInputClasses}
 			</div>
 			<div className={classes.control}>
 				<label htmlFor="city">City</label>
@@ -69,7 +94,9 @@ const Checkout = (props) => {
 					name="city"
 					value={form.city}
 					onChange={handleInputChange}
+					onBlur={handleBlur}
 				/>
+				{cityInputClasses}
 			</div>
 			<div className={classes.actions}>
 				<button type="button" onClick={props.onCancel}>
